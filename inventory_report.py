@@ -269,7 +269,8 @@ inventory_assignments = load_inventory_assignments()
 # Variables finales para usar en otros scripts.
 gold_star_inv = inventory_assignments["Gold Star Cattle"]
 la_esperanza_inv = inventory_assignments["La Esperanza Ranch"]
-frias_ranch_inv = inventory_assignments["Frias Ranch"]
+cesar_frias_ranch_inv = inventory_assignments["Cesar Frias Ranch"]
+frias_ranch_inv = cesar_frias_ranch_inv
 
 
 if __name__ == "__main__":
