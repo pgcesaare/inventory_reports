@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 from openpyxl import Workbook
+from openpyxl.worksheet.properties import PageSetupProperties
 from openpyxl.worksheet.page import PageMargins
 from openpyxl.styles import Alignment, Border, Font, Side
 
@@ -246,6 +247,7 @@ def apply_print_layout(ws, last_row: int) -> None:
         ws.row_dimensions[row_number].height = 18
 
     ws.print_area = f"A1:G{last_row}"
+    ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True, autoPageBreaks=False)
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
 
