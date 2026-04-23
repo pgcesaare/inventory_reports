@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 from openpyxl import Workbook
+from openpyxl.worksheet.page import PageMargins
 from openpyxl.styles import Alignment, Border, Font, Side
 
 # Ruta principal en Windows y ruta secundaria actual.
@@ -13,7 +14,7 @@ BASE_PATH_CANDIDATES = [
 RANCH_FILES = {
     "Gold Star Cattle": "Gold Star Inventory.xlsx",
     "La Esperanza Ranch": "Inventory at Dominguez - Guess Cattle.xlsx",
-    "Frias Ranch": "Inventory at Frias - Guess Cattle.xlsx",
+    "Cesar Frias Ranch": "Inventory at Frias - Guess Cattle.xlsx",
 }
 
 COLUMNS = [
@@ -106,6 +107,14 @@ def apply_sheet_styles(ws) -> None:
         ws.column_dimensions[column_letter].width = width
 
     ws.sheet_view.showGridLines = False
+    ws.page_margins = PageMargins(
+        left=0.25,
+        right=0.25,
+        top=0.75,
+        bottom=0.75,
+        header=0.3,
+        footer=0.3,
+    )
 
 
 def write_headers(ws) -> None:
@@ -223,6 +232,13 @@ def write_global_total(ws, row_number: int, total_rows: list[int]) -> None:
     ws.cell(row=row_number, column=7).number_format = "$#,##0.00"
 
 
+def apply_print_layout(ws, last_row: int) -> None:
+    for row_number in range(1, last_row + 1):
+        ws.row_dimensions[row_number].height = 20
+
+    ws.print_area = f"A1:G{last_row}"
+
+
 def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path: Path | None = None) -> Path:
     if output_path is None:
         output_path = build_output_path()
@@ -242,6 +258,7 @@ def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path:
         total_rows.append(total_row)
 
     write_global_total(worksheet, current_row, total_rows)
+    apply_print_layout(worksheet, current_row)
     workbook.save(output_path)
 
     return output_path
