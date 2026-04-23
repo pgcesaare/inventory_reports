@@ -24,7 +24,7 @@ COLUMNS = [
     ("Avg. DOF", 14),
     ("Min Date", 14),
     ("Max Date", 14),
-    ("Total", 14),
+    ("Total", 15),
 ]
 
 
@@ -189,6 +189,8 @@ def format_data_rows(ws, first_row: int, last_row: int) -> None:
 
 
 def write_table_totals(ws, total_row: int, data_start_row: int, data_end_row: int) -> int:
+    thin_gray = Side(style="thin", color="808080")
+
     if data_end_row >= data_start_row:
         quantity_formula = f"=SUM(B{data_start_row}:B{data_end_row})"
         total_formula = f"=SUM(G{data_start_row}:G{data_end_row})"
@@ -203,6 +205,9 @@ def write_table_totals(ws, total_row: int, data_start_row: int, data_end_row: in
     ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="left")
     ws.cell(row=total_row, column=2).alignment = Alignment(horizontal="center")
     ws.cell(row=total_row, column=7).alignment = Alignment(horizontal="right")
+    ws.cell(row=total_row, column=1).border = Border(top=thin_gray)
+    ws.cell(row=total_row, column=2).border = Border(top=thin_gray)
+    ws.cell(row=total_row, column=7).border = Border(top=thin_gray)
 
     ws.cell(row=total_row, column=2).number_format = "#,##0"
     ws.cell(row=total_row, column=7).number_format = "$#,##0.00"
@@ -221,20 +226,27 @@ def write_ranch_section(ws, start_row: int, ranch_name: str, inventory_df: pd.Da
     total_row = next_row if not inventory_df.empty else data_start_row
     write_table_totals(ws, total_row, data_start_row, data_end_row)
 
-    return total_row + 4, total_row
+    return total_row + 2, total_row
 
 
 def write_global_total(ws, row_number: int, total_rows: list[int]) -> None:
+    quantity_formula = "=" + "+".join(f"B{row}" for row in total_rows) if total_rows else "=0"
     total_formula = "=" + "+".join(f"G{row}" for row in total_rows) if total_rows else "=0"
 
-    ws.cell(row=row_number, column=5, value="TOTAL").font = Font(bold=True, size=14)
+    ws.cell(row=row_number, column=1, value="TOTAL").font = Font(bold=True, size=14)
+    ws.cell(row=row_number, column=2, value=quantity_formula).font = Font(bold=True, size=14)
     ws.cell(row=row_number, column=7, value=total_formula).font = Font(bold=True, size=14)
+
+    ws.cell(row=row_number, column=1).alignment = Alignment(horizontal="left")
+    ws.cell(row=row_number, column=2).alignment = Alignment(horizontal="center")
+    ws.cell(row=row_number, column=7).alignment = Alignment(horizontal="right")
+    ws.cell(row=row_number, column=2).number_format = "#,##0"
     ws.cell(row=row_number, column=7).number_format = "$#,##0.00"
 
 
 def apply_print_layout(ws, last_row: int) -> None:
     for row_number in range(1, last_row + 1):
-        ws.row_dimensions[row_number].height = 20
+        ws.row_dimensions[row_number].height = 18
 
     ws.print_area = f"A1:G{last_row}"
 
