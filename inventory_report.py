@@ -10,8 +10,6 @@ BASE_PATH_CANDIDATES = [
     Path("/Users/pgcesaare/OneDrive/Documentos"),
 ]
 
-OUTPUT_DIR = Path(__file__).resolve().parent / "Inventory Reports"
-
 RANCH_FILES = {
     "Gold Star Cattle": "Gold Star Inventory.xlsx",
     "La Esperanza Ranch": "Inventory at Dominguez - Guess Cattle.xlsx",
@@ -38,6 +36,7 @@ def resolve_base_path() -> Path:
 
 
 BASE_PATH = resolve_base_path()
+OUTPUT_DIR = BASE_PATH / "Inventory Reports"
 
 
 def load_ranch_file(filename: str) -> pd.DataFrame:
