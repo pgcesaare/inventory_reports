@@ -24,7 +24,7 @@ COLUMNS = [
     ("Avg. DOF", 14),
     ("Min Date", 14),
     ("Max Date", 14),
-    ("Total", 15),
+    ("Total", 16),
 ]
 
 
@@ -189,8 +189,6 @@ def format_data_rows(ws, first_row: int, last_row: int) -> None:
 
 
 def write_table_totals(ws, total_row: int, data_start_row: int, data_end_row: int) -> int:
-    thin_gray = Side(style="thin", color="808080")
-
     if data_end_row >= data_start_row:
         quantity_formula = f"=SUM(B{data_start_row}:B{data_end_row})"
         total_formula = f"=SUM(G{data_start_row}:G{data_end_row})"
@@ -205,9 +203,6 @@ def write_table_totals(ws, total_row: int, data_start_row: int, data_end_row: in
     ws.cell(row=total_row, column=1).alignment = Alignment(horizontal="left")
     ws.cell(row=total_row, column=2).alignment = Alignment(horizontal="center")
     ws.cell(row=total_row, column=7).alignment = Alignment(horizontal="right")
-    ws.cell(row=total_row, column=1).border = Border(top=thin_gray)
-    ws.cell(row=total_row, column=2).border = Border(top=thin_gray)
-    ws.cell(row=total_row, column=7).border = Border(top=thin_gray)
 
     ws.cell(row=total_row, column=2).number_format = "#,##0"
     ws.cell(row=total_row, column=7).number_format = "$#,##0.00"
