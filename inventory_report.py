@@ -28,11 +28,20 @@ COLUMNS = [
 
 
 def resolve_base_path() -> Path:
+    required_files = list(RANCH_FILES.values())
+
     for base_path in BASE_PATH_CANDIDATES:
-        if base_path.exists():
+        if base_path.exists() and all((base_path / filename).exists() for filename in required_files):
             return base_path
 
-    return BASE_PATH_CANDIDATES[0]
+    missing_by_path = []
+
+    for base_path in BASE_PATH_CANDIDATES:
+        missing_files = [filename for filename in required_files if not (base_path / filename).exists()]
+        missing_by_path.append(f"{base_path}: {', '.join(missing_files)}")
+
+    missing_detail = " | ".join(missing_by_path)
+    raise FileNotFoundError(f"No se encontraron todos los archivos de inventario. Revisado en: {missing_detail}")
 
 
 BASE_PATH = resolve_base_path()
@@ -40,7 +49,8 @@ OUTPUT_DIR = BASE_PATH / "Inventory Reports"
 
 
 def load_ranch_file(filename: str) -> pd.DataFrame:
-    return pd.read_excel(BASE_PATH / filename)
+    file_path = BASE_PATH / filename
+    return pd.read_excel(file_path)
 
 
 def filter_inventory(df: pd.DataFrame) -> pd.DataFrame:
