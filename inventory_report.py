@@ -50,7 +50,15 @@ OUTPUT_DIR = BASE_PATH / "Inventory Reports"
 
 def load_ranch_file(filename: str) -> pd.DataFrame:
     file_path = BASE_PATH / filename
-    return pd.read_excel(file_path)
+    try:
+        return pd.read_excel(file_path)
+    except PermissionError as exc:
+        raise PermissionError(
+            f"No se pudo leer '{file_path}'. "
+            "Windows nego el acceso al archivo. "
+            "Cierra el archivo en Excel, espera a que OneDrive termine de sincronizar "
+            "y asegurate de que el archivo este disponible localmente."
+        ) from exc
 
 
 def filter_inventory(df: pd.DataFrame) -> pd.DataFrame:
