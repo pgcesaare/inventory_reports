@@ -78,8 +78,10 @@ def build_inventory(df: pd.DataFrame) -> pd.DataFrame:
             max_date=("Date In", "max"),
             total=("Purchase Price", "sum"),
         )
-        .sort_values(by="total", ascending=False)
+        .sort_index()
     )
+
+    summary["avg_DOF"] = summary["avg_DOF"].round().astype(int)
 
     return summary
 
@@ -158,7 +160,7 @@ def write_inventory_rows(ws, start_row: int, inventory_df: pd.DataFrame) -> int:
         ws.cell(row=current_row, column=1, value=breed)
         ws.cell(row=current_row, column=2, value=int(values["quantity"]))
         ws.cell(row=current_row, column=3, value=float(values["avg_price"]))
-        ws.cell(row=current_row, column=4, value=float(values["avg_DOF"]))
+        ws.cell(row=current_row, column=4, value=int(values["avg_DOF"]))
         ws.cell(row=current_row, column=5, value=values["min_date"])
         ws.cell(row=current_row, column=6, value=values["max_date"])
         ws.cell(row=current_row, column=7, value=float(values["total"]))
@@ -182,7 +184,7 @@ def format_data_rows(ws, first_row: int, last_row: int) -> None:
 
         ws.cell(row=row, column=2).number_format = "#,##0"
         ws.cell(row=row, column=3).number_format = "$#,##0.00"
-        ws.cell(row=row, column=4).number_format = "0.00"
+        ws.cell(row=row, column=4).number_format = "0"
         ws.cell(row=row, column=5).number_format = "mm/dd/yyyy"
         ws.cell(row=row, column=6).number_format = "mm/dd/yyyy"
         ws.cell(row=row, column=7).number_format = "$#,##0.00"
@@ -257,7 +259,7 @@ def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path:
     apply_sheet_styles(worksheet)
     write_headers(worksheet)
 
-    current_row = 8
+    current_row = 6
     total_rows = []
 
     for ranch_name, inventory_df in inventories.items():
