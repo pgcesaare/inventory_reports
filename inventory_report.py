@@ -97,7 +97,7 @@ def load_inventory_assignments() -> dict[str, pd.DataFrame]:
 def build_output_path() -> Path:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     report_date = pd.Timestamp.today().strftime("%m.%d.%Y")
-    filename = f"brandao cattle inventory report {report_date}.xlsx"
+    filename = f"BRANDAO CATTLE INVENTORY REPORT {report_date}.xlsx"
     return OUTPUT_DIR / filename
 
 
