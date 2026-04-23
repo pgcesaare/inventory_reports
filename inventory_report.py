@@ -246,6 +246,8 @@ def apply_print_layout(ws, last_row: int) -> None:
         ws.row_dimensions[row_number].height = 18
 
     ws.print_area = f"A1:G{last_row}"
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
 
 
 def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path: Path | None = None) -> Path:
