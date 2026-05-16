@@ -13,7 +13,7 @@ BASE_PATH_CANDIDATES = [
 ]
 
 RANCH_FILES = {
-    "Gold Star Cattle": "Gold Star Inventory.xlsx",
+    "California Inventory": "California Inventory.xlsx",
     "La Esperanza Ranch": "Inventory at Dominguez - Guess Cattle.xlsx",
     "Cesar Frias Ranch": "Inventory at Frias - Guess Cattle.xlsx",
 }
@@ -280,7 +280,7 @@ def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path:
 inventory_assignments = load_inventory_assignments()
 
 # Variables finales para usar en otros scripts.
-gold_star_inv = inventory_assignments["Gold Star Cattle"]
+gold_star_inv = inventory_assignments["California Inventory"]
 la_esperanza_inv = inventory_assignments["La Esperanza Ranch"]
 cesar_frias_ranch_inv = inventory_assignments["Cesar Frias Ranch"]
 frias_ranch_inv = cesar_frias_ranch_inv
