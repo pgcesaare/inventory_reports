@@ -19,8 +19,12 @@ RANCH_FILES = {
 }
 
 CALIFORNIA_RANCH_NAME = "California Inventory"
-CALIFORNIA_REPORT_TITLE = "California"
 NO_LOCATION_LABEL = "No Location"
+RANCH_SECTION_TITLES = {
+    CALIFORNIA_RANCH_NAME: "California",
+    "La Esperanza Ranch": "Washington",
+    "Cesar Frias Ranch": "Idaho",
+}
 
 COLUMNS = [
     ("Breed", 28),
@@ -252,12 +256,15 @@ def write_ranch_section(ws, start_row: int, ranch_name: str, inventory_df: pd.Da
     return total_row + 2, total_row
 
 
+def write_section_title(ws, row_number: int, section_title: str) -> int:
+    ws.cell(row=row_number, column=1, value=section_title).font = Font(bold=True, size=13)
+    return row_number + 2
+
+
 def write_location_sections(
     ws, start_row: int, section_title: str, location_inventories: dict[str, pd.DataFrame]
 ) -> tuple[int, list[int]]:
-    ws.cell(row=start_row, column=1, value=section_title).font = Font(bold=True, size=13)
-
-    current_row = start_row + 2
+    current_row = write_section_title(ws, start_row, section_title)
     total_rows = []
 
     for location, inventory_df in location_inventories.items():
@@ -308,12 +315,15 @@ def generate_inventory_report(inventories: dict[str, InventoryAssignment], outpu
 
     for ranch_name, inventory_df in inventories.items():
         if isinstance(inventory_df, dict):
-            section_title = CALIFORNIA_REPORT_TITLE if ranch_name == CALIFORNIA_RANCH_NAME else ranch_name
+            section_title = RANCH_SECTION_TITLES.get(ranch_name, ranch_name)
             current_row, section_total_rows = write_location_sections(
                 worksheet, current_row, section_title, inventory_df
             )
             total_rows.extend(section_total_rows)
         else:
+            section_title = RANCH_SECTION_TITLES.get(ranch_name)
+            if section_title:
+                current_row = write_section_title(worksheet, current_row, section_title)
             current_row, total_row = write_ranch_section(worksheet, current_row, ranch_name, inventory_df)
             total_rows.append(total_row)
 
