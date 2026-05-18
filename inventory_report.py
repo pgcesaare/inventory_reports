@@ -18,6 +18,10 @@ RANCH_FILES = {
     "Cesar Frias Ranch": "Inventory at Frias - Guess Cattle.xlsx",
 }
 
+CALIFORNIA_RANCH_NAME = "California Inventory"
+CALIFORNIA_REPORT_TITLE = "California"
+NO_LOCATION_LABEL = "No Location"
+
 COLUMNS = [
     ("Breed", 28),
     ("Quantity", 14),
@@ -27,6 +31,8 @@ COLUMNS = [
     ("Max Date", 14),
     ("Total", 16),
 ]
+
+InventoryAssignment = pd.DataFrame | dict[str, pd.DataFrame]
 
 
 def resolve_base_path() -> Path:
@@ -87,13 +93,32 @@ def build_inventory(df: pd.DataFrame) -> pd.DataFrame:
     return summary
 
 
-def load_inventory_assignments() -> dict[str, pd.DataFrame]:
+def build_inventory_by_location(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    if df.empty:
+        return {NO_LOCATION_LABEL: build_inventory(df)}
+
+    location_df = df.copy()
+    location_df["Location"] = location_df["Location"].fillna(NO_LOCATION_LABEL)
+    location_df["Location"] = location_df["Location"].astype(str).str.strip().replace("", NO_LOCATION_LABEL)
+
+    inventories = {}
+
+    for location, location_group_df in location_df.groupby(by="Location", sort=True):
+        inventories[location] = build_inventory(location_group_df)
+
+    return inventories
+
+
+def load_inventory_assignments() -> dict[str, InventoryAssignment]:
     inventories = {}
 
     for ranch_name, filename in RANCH_FILES.items():
         ranch_df = load_ranch_file(filename)
         filtered_df = filter_inventory(ranch_df)
-        inventories[ranch_name] = build_inventory(filtered_df)
+        if ranch_name == CALIFORNIA_RANCH_NAME:
+            inventories[ranch_name] = build_inventory_by_location(filtered_df)
+        else:
+            inventories[ranch_name] = build_inventory(filtered_df)
 
     return inventories
 
@@ -227,6 +252,21 @@ def write_ranch_section(ws, start_row: int, ranch_name: str, inventory_df: pd.Da
     return total_row + 2, total_row
 
 
+def write_location_sections(
+    ws, start_row: int, section_title: str, location_inventories: dict[str, pd.DataFrame]
+) -> tuple[int, list[int]]:
+    ws.cell(row=start_row, column=1, value=section_title).font = Font(bold=True, size=13)
+
+    current_row = start_row + 2
+    total_rows = []
+
+    for location, inventory_df in location_inventories.items():
+        current_row, total_row = write_ranch_section(ws, current_row, location, inventory_df)
+        total_rows.append(total_row)
+
+    return current_row, total_rows
+
+
 def write_global_total(ws, row_number: int, total_rows: list[int]) -> None:
     quantity_formula = "=" + "+".join(f"B{row}" for row in total_rows) if total_rows else "=0"
     total_formula = "=" + "+".join(f"G{row}" for row in total_rows) if total_rows else "=0"
@@ -252,7 +292,7 @@ def apply_print_layout(ws, last_row: int) -> None:
     ws.page_setup.fitToHeight = 0
 
 
-def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path: Path | None = None) -> Path:
+def generate_inventory_report(inventories: dict[str, InventoryAssignment], output_path: Path | None = None) -> Path:
     if output_path is None:
         output_path = build_output_path()
 
@@ -267,8 +307,15 @@ def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path:
     total_rows = []
 
     for ranch_name, inventory_df in inventories.items():
-        current_row, total_row = write_ranch_section(worksheet, current_row, ranch_name, inventory_df)
-        total_rows.append(total_row)
+        if isinstance(inventory_df, dict):
+            section_title = CALIFORNIA_REPORT_TITLE if ranch_name == CALIFORNIA_RANCH_NAME else ranch_name
+            current_row, section_total_rows = write_location_sections(
+                worksheet, current_row, section_title, inventory_df
+            )
+            total_rows.extend(section_total_rows)
+        else:
+            current_row, total_row = write_ranch_section(worksheet, current_row, ranch_name, inventory_df)
+            total_rows.append(total_row)
 
     write_global_total(worksheet, current_row, total_rows)
     apply_print_layout(worksheet, current_row)
@@ -280,7 +327,9 @@ def generate_inventory_report(inventories: dict[str, pd.DataFrame], output_path:
 inventory_assignments = load_inventory_assignments()
 
 # Variables finales para usar en otros scripts.
-gold_star_inv = inventory_assignments["California Inventory"]
+california_location_inventories = inventory_assignments[CALIFORNIA_RANCH_NAME]
+gold_star_inv = california_location_inventories.get("Gold Star Cattle", pd.DataFrame())
+vazquez_calf_ranch_inv = california_location_inventories.get("Vazquez Calf Ranch", pd.DataFrame())
 la_esperanza_inv = inventory_assignments["La Esperanza Ranch"]
 cesar_frias_ranch_inv = inventory_assignments["Cesar Frias Ranch"]
 frias_ranch_inv = cesar_frias_ranch_inv
