@@ -9,7 +9,7 @@ from openpyxl.worksheet.properties import PageSetupProperties
 
 DATE_COLUMNS = ["Date In", "Death Date", "Shipped out date"]
 RECORD_LOOKBACK_DAYS = 30
-ZERO_FONT_COLOR = "A6A6A6"
+ZERO_FONT_COLOR = "808080"
 
 RECORD_COLUMNS = [
     ("Date", 20),
