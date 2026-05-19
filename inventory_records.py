@@ -14,7 +14,7 @@ RECORD_COLUMNS = [
     ("Date", 20),
     ("Prev. Inventory", 22),
     ("Entries", 18),
-    ("Deaths", 18),
+    ("Deads", 18),
     ("Shipped", 18),
     ("Inventory", 20),
 ]
@@ -217,33 +217,19 @@ def format_record_rows(ws, first_row: int, last_row: int) -> None:
             ws.cell(row=row, column=column_index).alignment = Alignment(horizontal="center")
             ws.cell(row=row, column=column_index).number_format = "#,##0"
 
+        ws.cell(row=row, column=3).number_format = '+ #,##0;+ #,##0;"0"'
+        ws.cell(row=row, column=4).number_format = '- #,##0;- #,##0;"0"'
+        ws.cell(row=row, column=5).number_format = '- #,##0;- #,##0;"0"'
+
         for column_index in range(1, len(RECORD_COLUMNS) + 1):
             ws.cell(row=row, column=column_index).border = Border(bottom=row_separator)
 
 
-def write_record_totals(ws, total_row: int, data_start_row: int, data_end_row: int) -> None:
-    thin_gray = Side(style="thin", color="808080")
+def bold_last_inventory_value(ws, data_start_row: int, data_end_row: int) -> None:
+    if data_end_row < data_start_row:
+        return
 
-    ws.cell(row=total_row, column=1, value="TOTAL").font = Font(bold=True)
-
-    if data_end_row >= data_start_row:
-        ws.cell(row=total_row, column=3, value=f"=SUM(C{data_start_row}:C{data_end_row})")
-        ws.cell(row=total_row, column=4, value=f"=SUM(D{data_start_row}:D{data_end_row})")
-        ws.cell(row=total_row, column=5, value=f"=SUM(E{data_start_row}:E{data_end_row})")
-        ws.cell(row=total_row, column=6, value=f"=F{data_end_row}")
-    else:
-        ws.cell(row=total_row, column=3, value=0)
-        ws.cell(row=total_row, column=4, value=0)
-        ws.cell(row=total_row, column=5, value=0)
-        ws.cell(row=total_row, column=6, value=0)
-
-    for column_index in range(1, 7):
-        cell = ws.cell(row=total_row, column=column_index)
-        cell.font = Font(bold=True)
-        cell.alignment = Alignment(horizontal="left" if column_index == 1 else "center")
-        cell.border = Border(top=thin_gray)
-        if column_index > 1:
-            cell.number_format = "#,##0"
+    ws.cell(row=data_end_row, column=6).font = Font(bold=True)
 
 
 def apply_vertical_centering(ws, last_row: int, last_column: int) -> None:
@@ -280,6 +266,5 @@ def write_inventory_record_sheet(workbook, record_sheet: InventoryRecordSheet) -
     data_end_row = next_row - 1
 
     format_record_rows(worksheet, data_start_row, data_end_row)
-    total_row = next_row if not record_sheet.records.empty else data_start_row
-    write_record_totals(worksheet, total_row, data_start_row, data_end_row)
-    apply_record_print_layout(worksheet, total_row)
+    bold_last_inventory_value(worksheet, data_start_row, data_end_row)
+    apply_record_print_layout(worksheet, max(data_end_row, header_row))

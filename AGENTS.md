@@ -74,17 +74,19 @@ Cada hoja de record tiene columnas:
 - `Date`
 - `Prev. Inventory`
 - `Entries`
-- `Deaths`
+- `Deads`
 - `Shipped`
 - `Inventory`
 
 La logica diaria es:
 
 - `Entries`: conteo por `Date In`.
-- `Deaths`: conteo de rows con `Status == "Dead"` por `Death Date`.
+- `Deads`: conteo de rows con `Status == "Dead"` por `Death Date`.
 - `Shipped`: conteo de rows con `Status == "Shipped"` por `Shipped out date`.
 - `Inventory`: acumulado de `entries - deaths - shipped`.
 - `Prev. Inventory`: inventario del dia anterior.
+- En records, `Entries` se muestra como `+ 1`; `Deads` y `Shipped` como `- 1`; los ceros se muestran como `0` sin signo.
+- Las hojas de records no llevan fila `TOTAL`; solo el ultimo valor visible de `Inventory` va en negritas.
 
 Si una fila tiene `Status == "Shipped"` pero no tiene `Shipped out date`, el codigo usa `Date In` como fecha de salida para que no quede inflando el inventario activo.
 
@@ -110,7 +112,7 @@ Mantener estilo similar en todas las hojas:
 - Encabezados con fuente bold.
 - Bordes inferiores grises en headers de tabla.
 - Las filas de datos llevan separadores horizontales gris claro.
-- Los rows `TOTAL` llevan borde superior gris para separar la tabla del total.
+- Los rows `TOTAL` del inventory report llevan borde superior gris para separar la tabla del total.
 - Formatos de fecha `mm/dd/yyyy`.
 - Cantidades enteras con `#,##0`.
 - Valores monetarios con `$#,##0.00`.
