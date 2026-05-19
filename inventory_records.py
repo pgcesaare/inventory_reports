@@ -10,12 +10,12 @@ DATE_COLUMNS = ["Date In", "Death Date", "Shipped out date"]
 RECORD_LOOKBACK_DAYS = 30
 
 RECORD_COLUMNS = [
-    ("Date", 14),
-    ("Prev. Inventory", 18),
-    ("Entries", 12),
-    ("Deaths", 12),
-    ("Shipped", 12),
-    ("Inventory", 14),
+    ("Date", 20),
+    ("Prev. Inventory", 22),
+    ("Entries", 18),
+    ("Deaths", 18),
+    ("Shipped", 18),
+    ("Inventory", 20),
 ]
 
 
@@ -206,6 +206,8 @@ def format_record_rows(ws, first_row: int, last_row: int) -> None:
     if last_row < first_row:
         return
 
+    row_separator = Side(style="thin", color="E6E6E6")
+
     for row in range(first_row, last_row + 1):
         ws.cell(row=row, column=1).alignment = Alignment(horizontal="left")
         ws.cell(row=row, column=1).number_format = "mm/dd/yyyy"
@@ -214,8 +216,13 @@ def format_record_rows(ws, first_row: int, last_row: int) -> None:
             ws.cell(row=row, column=column_index).alignment = Alignment(horizontal="center")
             ws.cell(row=row, column=column_index).number_format = "#,##0"
 
+        for column_index in range(1, len(RECORD_COLUMNS) + 1):
+            ws.cell(row=row, column=column_index).border = Border(bottom=row_separator)
+
 
 def write_record_totals(ws, total_row: int, data_start_row: int, data_end_row: int) -> None:
+    thin_gray = Side(style="thin", color="808080")
+
     ws.cell(row=total_row, column=1, value="TOTAL").font = Font(bold=True)
 
     if data_end_row >= data_start_row:
@@ -233,6 +240,7 @@ def write_record_totals(ws, total_row: int, data_start_row: int, data_end_row: i
         cell = ws.cell(row=total_row, column=column_index)
         cell.font = Font(bold=True)
         cell.alignment = Alignment(horizontal="left" if column_index == 1 else "center")
+        cell.border = Border(top=thin_gray)
         if column_index > 1:
             cell.number_format = "#,##0"
 
@@ -244,7 +252,7 @@ def apply_record_print_layout(ws, last_row: int) -> None:
     ws.print_area = f"A1:F{last_row}"
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True, autoPageBreaks=False)
     ws.page_setup.fitToWidth = 1
-    ws.page_setup.fitToHeight = 0
+    ws.page_setup.fitToHeight = 1
 
 
 def write_inventory_record_sheet(workbook, record_sheet: InventoryRecordSheet) -> None:

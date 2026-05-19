@@ -29,13 +29,13 @@ RANCH_SECTION_TITLES = {
 }
 
 COLUMNS = [
-    ("Breed", 28),
-    ("Quantity", 14),
-    ("Avg. Price", 14),
-    ("Avg. DOF", 14),
-    ("Min Date", 14),
-    ("Max Date", 14),
-    ("Total", 16),
+    ("Breed", 32),
+    ("Quantity", 15),
+    ("Avg. Price", 15),
+    ("Avg. DOF", 15),
+    ("Min Date", 15),
+    ("Max Date", 15),
+    ("Total", 18),
 ]
 
 InventoryAssignment = pd.DataFrame | dict[str, pd.DataFrame]
@@ -212,6 +212,8 @@ def format_data_rows(ws, first_row: int, last_row: int) -> None:
     if last_row < first_row:
         return
 
+    row_separator = Side(style="thin", color="E6E6E6")
+
     for row in range(first_row, last_row + 1):
         ws.cell(row=row, column=1).alignment = Alignment(horizontal="left")
         ws.cell(row=row, column=2).alignment = Alignment(horizontal="center")
@@ -227,6 +229,16 @@ def format_data_rows(ws, first_row: int, last_row: int) -> None:
         ws.cell(row=row, column=5).number_format = "mm/dd/yyyy"
         ws.cell(row=row, column=6).number_format = "mm/dd/yyyy"
         ws.cell(row=row, column=7).number_format = "$#,##0.00"
+
+        for column_index in range(1, len(COLUMNS) + 1):
+            ws.cell(row=row, column=column_index).border = Border(bottom=row_separator)
+
+
+def apply_total_border(ws, row_number: int, last_column: int) -> None:
+    thin_gray = Side(style="thin", color="808080")
+
+    for column_index in range(1, last_column + 1):
+        ws.cell(row=row_number, column=column_index).border = Border(top=thin_gray)
 
 
 def write_table_totals(ws, total_row: int, data_start_row: int, data_end_row: int) -> int:
@@ -247,6 +259,7 @@ def write_table_totals(ws, total_row: int, data_start_row: int, data_end_row: in
 
     ws.cell(row=total_row, column=2).number_format = "#,##0"
     ws.cell(row=total_row, column=7).number_format = "$#,##0.00"
+    apply_total_border(ws, total_row, len(COLUMNS))
 
     return total_row
 
@@ -296,6 +309,7 @@ def write_global_total(ws, row_number: int, total_rows: list[int]) -> None:
     ws.cell(row=row_number, column=7).alignment = Alignment(horizontal="right")
     ws.cell(row=row_number, column=2).number_format = "#,##0"
     ws.cell(row=row_number, column=7).number_format = "$#,##0.00"
+    apply_total_border(ws, row_number, len(COLUMNS))
 
 
 def apply_print_layout(ws, last_row: int) -> None:

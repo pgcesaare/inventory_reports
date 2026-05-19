@@ -104,9 +104,12 @@ Mantener estilo similar en todas las hojas:
 - Sin gridlines.
 - Margenes: left/right `0.25`, top/bottom `0.75`, header/footer `0.3`.
 - `fitToWidth = 1`.
+- Las hojas de records usan `fitToHeight = 1` para imprimir en una sola pagina cuando sea posible.
 - Altura de filas `18`.
 - Encabezados con fuente bold.
 - Bordes inferiores grises en headers de tabla.
+- Las filas de datos llevan separadores horizontales gris claro.
+- Los rows `TOTAL` llevan borde superior gris para separar la tabla del total.
 - Formatos de fecha `mm/dd/yyyy`.
 - Cantidades enteras con `#,##0`.
 - Valores monetarios con `$#,##0.00`.
