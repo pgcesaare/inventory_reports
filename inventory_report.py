@@ -1,3 +1,4 @@
+from copy import copy
 from pathlib import Path
 
 import pandas as pd
@@ -312,10 +313,20 @@ def write_global_total(ws, row_number: int, total_rows: list[int]) -> None:
     apply_total_border(ws, row_number, len(COLUMNS))
 
 
+def apply_vertical_centering(ws, last_row: int, last_column: int) -> None:
+    for row_number in range(1, last_row + 1):
+        for column_index in range(1, last_column + 1):
+            cell = ws.cell(row=row_number, column=column_index)
+            alignment = copy(cell.alignment)
+            alignment.vertical = "center"
+            cell.alignment = alignment
+
+
 def apply_print_layout(ws, last_row: int) -> None:
     for row_number in range(1, last_row + 1):
         ws.row_dimensions[row_number].height = 18
 
+    apply_vertical_centering(ws, last_row, len(COLUMNS))
     ws.print_area = f"A1:G{last_row}"
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True, autoPageBreaks=False)
     ws.page_setup.fitToWidth = 1

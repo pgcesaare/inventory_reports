@@ -106,6 +106,7 @@ Mantener estilo similar en todas las hojas:
 - `fitToWidth = 1`.
 - Las hojas de records usan `fitToHeight = 1` para imprimir en una sola pagina cuando sea posible.
 - Altura de filas `18`.
+- El contenido del area impresa debe quedar alineado verticalmente al centro sin cambiar la alineacion horizontal existente.
 - Encabezados con fuente bold.
 - Bordes inferiores grises en headers de tabla.
 - Las filas de datos llevan separadores horizontales gris claro.

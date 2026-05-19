@@ -1,3 +1,4 @@
+from copy import copy
 from dataclasses import dataclass
 import re
 
@@ -245,10 +246,20 @@ def write_record_totals(ws, total_row: int, data_start_row: int, data_end_row: i
             cell.number_format = "#,##0"
 
 
+def apply_vertical_centering(ws, last_row: int, last_column: int) -> None:
+    for row_number in range(1, last_row + 1):
+        for column_index in range(1, last_column + 1):
+            cell = ws.cell(row=row_number, column=column_index)
+            alignment = copy(cell.alignment)
+            alignment.vertical = "center"
+            cell.alignment = alignment
+
+
 def apply_record_print_layout(ws, last_row: int) -> None:
     for row_number in range(1, last_row + 1):
         ws.row_dimensions[row_number].height = 18
 
+    apply_vertical_centering(ws, last_row, len(RECORD_COLUMNS))
     ws.print_area = f"A1:F{last_row}"
     ws.sheet_properties.pageSetUpPr = PageSetupProperties(fitToPage=True, autoPageBreaks=False)
     ws.page_setup.fitToWidth = 1
