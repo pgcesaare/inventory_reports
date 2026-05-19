@@ -86,6 +86,7 @@ La logica diaria es:
 - `Inventory`: acumulado de `entries - deaths - shipped`.
 - `Prev. Inventory`: inventario del dia anterior.
 - En records, `Entries` se muestra como `+ 1`; `Deads` y `Shipped` como `- 1`; los ceros se muestran como `0` sin signo.
+- Los valores `0` en records usan fuente gris clara para que los valores mayores a 0 destaquen.
 - Las hojas de records no llevan fila `TOTAL`; solo el ultimo valor visible de `Inventory` va en negritas.
 
 Si una fila tiene `Status == "Shipped"` pero no tiene `Shipped out date`, el codigo usa `Date In` como fecha de salida para que no quede inflando el inventario activo.

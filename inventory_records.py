@@ -9,6 +9,7 @@ from openpyxl.worksheet.properties import PageSetupProperties
 
 DATE_COLUMNS = ["Date In", "Death Date", "Shipped out date"]
 RECORD_LOOKBACK_DAYS = 30
+ZERO_FONT_COLOR = "A6A6A6"
 
 RECORD_COLUMNS = [
     ("Date", 20),
@@ -203,6 +204,15 @@ def write_record_rows(ws, start_row: int, records: pd.DataFrame) -> int:
     return current_row
 
 
+def apply_zero_font_color(cell) -> None:
+    if cell.value != 0:
+        return
+
+    font = copy(cell.font)
+    font.color = ZERO_FONT_COLOR
+    cell.font = font
+
+
 def format_record_rows(ws, first_row: int, last_row: int) -> None:
     if last_row < first_row:
         return
@@ -216,6 +226,7 @@ def format_record_rows(ws, first_row: int, last_row: int) -> None:
         for column_index in range(2, 7):
             ws.cell(row=row, column=column_index).alignment = Alignment(horizontal="center")
             ws.cell(row=row, column=column_index).number_format = "#,##0"
+            apply_zero_font_color(ws.cell(row=row, column=column_index))
 
         ws.cell(row=row, column=3).number_format = '+ #,##0;+ #,##0;"0"'
         ws.cell(row=row, column=4).number_format = '- #,##0;- #,##0;"0"'
@@ -229,7 +240,10 @@ def bold_last_inventory_value(ws, data_start_row: int, data_end_row: int) -> Non
     if data_end_row < data_start_row:
         return
 
-    ws.cell(row=data_end_row, column=6).font = Font(bold=True)
+    cell = ws.cell(row=data_end_row, column=6)
+    font = copy(cell.font)
+    font.bold = True
+    cell.font = font
 
 
 def apply_vertical_centering(ws, last_row: int, last_column: int) -> None:
