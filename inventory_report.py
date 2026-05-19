@@ -6,6 +6,8 @@ from openpyxl.worksheet.properties import PageSetupProperties
 from openpyxl.worksheet.page import PageMargins
 from openpyxl.styles import Alignment, Border, Font, Side
 
+from inventory_records import InventoryRecordSheet, build_inventory_record_sheets, write_inventory_record_sheet
+
 # Ruta principal en Windows y ruta secundaria actual.
 BASE_PATH_CANDIDATES = [
     Path("C:/Users/cesar/OneDrive/Documentos"),
@@ -73,6 +75,10 @@ def load_ranch_file(filename: str) -> pd.DataFrame:
         ) from exc
 
 
+def load_ranch_dataframes() -> dict[str, pd.DataFrame]:
+    return {ranch_name: load_ranch_file(filename) for ranch_name, filename in RANCH_FILES.items()}
+
+
 def filter_inventory(df: pd.DataFrame) -> pd.DataFrame:
     mask = (df["Ownership"] == "Brandao Cattle") & (df["Status"] == "Feeding")
     return df.loc[mask].copy()
@@ -113,11 +119,10 @@ def build_inventory_by_location(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     return inventories
 
 
-def load_inventory_assignments() -> dict[str, InventoryAssignment]:
+def build_inventory_assignments(ranch_dataframes: dict[str, pd.DataFrame]) -> dict[str, InventoryAssignment]:
     inventories = {}
 
-    for ranch_name, filename in RANCH_FILES.items():
-        ranch_df = load_ranch_file(filename)
+    for ranch_name, ranch_df in ranch_dataframes.items():
         filtered_df = filter_inventory(ranch_df)
         if ranch_name == CALIFORNIA_RANCH_NAME:
             inventories[ranch_name] = build_inventory_by_location(filtered_df)
@@ -125,6 +130,10 @@ def load_inventory_assignments() -> dict[str, InventoryAssignment]:
             inventories[ranch_name] = build_inventory(filtered_df)
 
     return inventories
+
+
+def load_inventory_assignments() -> dict[str, InventoryAssignment]:
+    return build_inventory_assignments(load_ranch_dataframes())
 
 
 def build_output_path() -> Path:
@@ -299,7 +308,11 @@ def apply_print_layout(ws, last_row: int) -> None:
     ws.page_setup.fitToHeight = 0
 
 
-def generate_inventory_report(inventories: dict[str, InventoryAssignment], output_path: Path | None = None) -> Path:
+def generate_inventory_report(
+    inventories: dict[str, InventoryAssignment],
+    output_path: Path | None = None,
+    record_sheets: list[InventoryRecordSheet] | None = None,
+) -> Path:
     if output_path is None:
         output_path = build_output_path()
 
@@ -329,12 +342,20 @@ def generate_inventory_report(inventories: dict[str, InventoryAssignment], outpu
 
     write_global_total(worksheet, current_row, total_rows)
     apply_print_layout(worksheet, current_row)
+
+    if record_sheets is None:
+        record_sheets = globals().get("inventory_record_sheets", [])
+
+    for record_sheet in record_sheets:
+        write_inventory_record_sheet(workbook, record_sheet)
+
     workbook.save(output_path)
 
     return output_path
 
 
-inventory_assignments = load_inventory_assignments()
+ranch_dataframes = load_ranch_dataframes()
+inventory_assignments = build_inventory_assignments(ranch_dataframes)
 
 # Variables finales para usar en otros scripts.
 california_location_inventories = inventory_assignments[CALIFORNIA_RANCH_NAME]
@@ -343,6 +364,13 @@ vazquez_calf_ranch_inv = california_location_inventories.get("Vazquez Calf Ranch
 la_esperanza_inv = inventory_assignments["La Esperanza Ranch"]
 cesar_frias_ranch_inv = inventory_assignments["Cesar Frias Ranch"]
 frias_ranch_inv = cesar_frias_ranch_inv
+inventory_record_sheets = build_inventory_record_sheets(
+    ranch_dataframes=ranch_dataframes,
+    ranch_section_titles=RANCH_SECTION_TITLES,
+    california_ranch_name=CALIFORNIA_RANCH_NAME,
+    no_location_label=NO_LOCATION_LABEL,
+    california_locations=list(california_location_inventories.keys()),
+)
 
 
 if __name__ == "__main__":
