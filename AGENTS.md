@@ -24,6 +24,7 @@ Los archivos esperados estan definidos en `RANCH_FILES`:
 - `California Inventory`: `California Inventory.xlsx`
 - `La Esperanza Ranch`: `Inventory at Dominguez - Guess Cattle.xlsx`
 - `Cesar Frias Ranch`: `Inventory at Frias - Guess Cattle.xlsx`
+- `Fullmer Cattle`: `Inventory at Fullmer Cattle.xlsx`
 
 El codigo busca los archivos en `BASE_PATH_CANDIDATES`:
 
@@ -42,7 +43,8 @@ No editar estos Excel fuente desde el codigo salvo que el usuario lo pida explic
   - `California Inventory` -> `California`
   - `La Esperanza Ranch` -> `Washington`
   - `Cesar Frias Ranch` -> `Idaho`
-- Washington e Idaho se muestran como titulo general antes de sus tablas de rancho.
+  - `Fullmer Cattle` -> `Kansas`
+- Washington, Idaho y Kansas se muestran como titulo general antes de sus tablas de rancho.
 
 ## Hoja principal
 
@@ -97,6 +99,7 @@ Las hojas de records esperadas actualmente son:
 - `Vazquez Calf Ranch Record`
 - `La Esperanza Ranch Record`
 - `Cesar Frias Ranch Record`
+- `Fullmer Cattle Record`
 
 California usa las mismas locations activas detectadas en el inventario actual para crear sus hojas de records.
 

@@ -19,6 +19,7 @@ RANCH_FILES = {
     "California Inventory": "California Inventory.xlsx",
     "La Esperanza Ranch": "Inventory at Dominguez - Guess Cattle.xlsx",
     "Cesar Frias Ranch": "Inventory at Frias - Guess Cattle.xlsx",
+    "Fullmer Cattle": "Inventory at Fullmer Cattle.xlsx",
 }
 
 CALIFORNIA_RANCH_NAME = "California Inventory"
@@ -27,6 +28,7 @@ RANCH_SECTION_TITLES = {
     CALIFORNIA_RANCH_NAME: "California",
     "La Esperanza Ranch": "Washington",
     "Cesar Frias Ranch": "Idaho",
+    "Fullmer Cattle": "Kansas",
 }
 
 COLUMNS = [
@@ -389,6 +391,7 @@ vazquez_calf_ranch_inv = california_location_inventories.get("Vazquez Calf Ranch
 la_esperanza_inv = inventory_assignments["La Esperanza Ranch"]
 cesar_frias_ranch_inv = inventory_assignments["Cesar Frias Ranch"]
 frias_ranch_inv = cesar_frias_ranch_inv
+fullmer_cattle_inv = inventory_assignments["Fullmer Cattle"]
 inventory_record_sheets = build_inventory_record_sheets(
     ranch_dataframes=ranch_dataframes,
     ranch_section_titles=RANCH_SECTION_TITLES,
